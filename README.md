@@ -4,7 +4,7 @@ Google Apps Script 웹앱을 프록시로 사용해 Pixabay, Pixiv, 또는 직�
 개인서버에서 이미지 주소 목록을 가져와, BookOasis 대시보드에 랜덤 갤러리로
 보여주는 메타데이터 플러그인입니다.
 
-- **버전**: 1.0.3
+- **버전**: 1.1.0
 - **플러그인 ID**: `random_gallery`
 - **표시명**: 랜덤 갤러리
 
@@ -48,7 +48,20 @@ Google Apps Script 웹앱을 프록시로 사용해 Pixabay, Pixiv, 또는 직�
 | `CATEGORIES_JSON` | 카테고리 목록 JSON. 예: `[{"label":"자연","keyword":"nature"}]` | `[]` (없음) |
 | `IMAGES_PER_CATEGORY` | 카테고리당 가져올 이미지 수 | `20` |
 | `REQUEST_TIMEOUT_SEC` | Apps Script 요청 타임아웃(초) | `10` |
+| `DISPLAY_MODE` | 노출 위치 (`both` / `desk_tab` / `category_tab` / `none`) | `both` |
 | `DEBUG_MODE` | 요청/응답 진단 정보를 결과에 포함할지 여부 | `True` |
+
+### 노출 위치 선택 (`DISPLAY_MODE`)
+
+- `both`: 플러그인 데스크 탭 + 카테고리 메뉴 둘 다 사용
+- `desk_tab`: 플러그인 데스크 내부 단독 전체화면 탭만 사용
+- `category_tab`: 카테고리 내비게이션의 "랜덤 갤러리" 메뉴(커스텀 풀페이지)만 사용
+- `none`: 둘 다 비활성화
+
+> `dashboard_widget`는 요청마다 다시 평가되어 즉시 반영되지만, "카테고리"
+> 내비게이션 메뉴는 서버가 시작될 때 한 번만 구성될 가능성이 있어
+> `DISPLAY_MODE`를 바꾼 뒤 카테고리 메뉴에 반영이 안 되면 서버를
+> 재시작해 보세요.
 
 ### 실제 요청 형태
 
@@ -112,4 +125,4 @@ Apps Script가 반환해야 하는 정상 응답 형식:
     코어의 정형화된 도서 카드 렌더러를 거치지 않으므로 이미지 그리드
     크기, 카테고리 필터 버튼 등을 자유롭게 구성했습니다.
 - `VERSION`
-  - 플러그인 버전 정보 (`{"plugin version": "1.0.3"}`).
+  - 플러그인 버전 정보 (`{"plugin version": "1.1.0"}`).

@@ -36,6 +36,16 @@ Apps Script 응답 형식(확인됨):
 카테고리는 기본 제공 목록이 없으며, 관리자가 CATEGORIES_JSON에서 직접
 등록합니다. 등록하지 않으면 검색어 없이 전체 이미지를 "전체" 카테고리
 하나로 보여줍니다.
+
+노출 위치는 설정의 DISPLAY_MODE(드롭다운)로 선택합니다.
+  - both: 플러그인 데스크 탭 + 카테고리 메뉴 둘 다 사용 (기본값)
+  - desk_tab: 플러그인 데스크 탭만 사용
+  - category_tab: 카테고리 메뉴만 사용
+  - none: 둘 다 비활성화
+dashboard_widget/category_tab을 @property로 만들어 이 설정값에 따라
+None을 반환하는 방식으로 껐다 켭니다(가이드 3번 섹션: "dashboard_widget
+(dict 또는 None)"). 다만 "카테고리" 내비게이션 메뉴는 서버 시작 시 한 번만
+구성될 수 있어, 설정을 바꾼 뒤에는 서버 재시작이 필요할 수 있습니다.
 """
 
 import json
@@ -76,6 +86,17 @@ DEFAULT_CATEGORIES = []
 
 # 카테고리가 하나도 등록되지 않았을 때 사용할 대체 카테고리 (검색어 없이 전체 이미지)
 FALLBACK_CATEGORY = {"label": "전체", "keyword": ""}
+
+# 노출 위치 선택 옵션. 두 화면 모두 dashboard_widget / category_tab 계약을
+# 각각 켜고 끌 수 있게 합니다.
+#   - desk_tab: [플러그인 데스크] 내부 단독 전체화면 탭 (표준 대시보드 위젯)
+#   - category_tab: 코어 "카테고리" 내비게이션의 자체 제작 풀페이지 UI
+DISPLAY_MODE_OPTIONS = [
+    {"value": "both", "label": "둘 다 사용 (플러그인 데스크 탭 + 카테고리 메뉴)"},
+    {"value": "desk_tab", "label": "플러그인 데스크 탭만 사용"},
+    {"value": "category_tab", "label": "카테고리 메뉴만 사용"},
+    {"value": "none", "label": "둘 다 사용 안 함 (비활성화)"},
+]
 
 
 class RandomGalleryMetadataProvider(BaseMetadataProvider):
@@ -131,6 +152,14 @@ class RandomGalleryMetadataProvider(BaseMetadataProvider):
             "default": 10,
         },
         {
+            "key": "DISPLAY_MODE",
+            "label": "노출 위치",
+            "type": "select",
+            "options": DISPLAY_MODE_OPTIONS,
+            "required": True,
+            "default": "both",
+        },
+        {
             "key": "DEBUG_MODE",
             "label": "디버그 정보 표시 (요청 URL/상태코드/원본 응답을 결과에 포함)",
             "type": "checkbox",
@@ -153,26 +182,36 @@ class RandomGalleryMetadataProvider(BaseMetadataProvider):
         "show_sample_update_button": False,
     }
 
-    # 가이드 5번 섹션 예시와 동일한 형태의 dashboard_widget 계약.
-    # all_desk_tab=True → [공통 데스크] 카드가 아닌 단독 전체화면 탭으로 렌더링.
-    # supported_types는 생략해서 일반/성인 보관함 모두에 노출되게 둡니다.
-    dashboard_widget = {
-        "title": "랜덤 갤러리",
-        "subtitle": "카테고리별 랜덤 이미지",
-        "provider": "Apps Script Gallery Proxy",
-        "icon": "fa-solid fa-images",
-        "limit": 30,
-        "all_desk_tab": True,
-    }
+    # 가이드 3번 섹션: "dashboard_widget (dict 또는 None)" — None 반환 시
+    # 해당 노출 계약이 비활성화된 것으로 처리됩니다. DISPLAY_MODE 설정값에
+    # 따라 두 노출 위치를 각각 켜고 끕니다.
+    @property
+    def dashboard_widget(self):
+        if self._get_display_mode() not in ("both", "desk_tab"):
+            return None
+        # 가이드 5번 섹션 예시와 동일한 형태의 dashboard_widget 계약.
+        # all_desk_tab=True → [공통 데스크] 카드가 아닌 단독 전체화면 탭으로 렌더링.
+        return {
+            "title": "랜덤 갤러리",
+            "subtitle": "카테고리별 랜덤 이미지",
+            "provider": "Apps Script Gallery Proxy",
+            "icon": "fa-solid fa-images",
+            "limit": 30,
+            "all_desk_tab": True,
+        }
 
     # 코어 좌측/상단 "카테고리" 내비게이션에 별도 메뉴로 노출 + index.html/
     # script.js/style.css로 완전 커스텀 풀페이지 렌더링 (가이드 문서에는 없지만
     # stats_dashboard 실제 소스로 확인된 계약: title/icon/order)
-    category_tab = {
-        "title": "랜덤 갤러리",
-        "icon": "fa-solid fa-images",
-        "order": 91,
-    }
+    @property
+    def category_tab(self):
+        if self._get_display_mode() not in ("both", "category_tab"):
+            return None
+        return {
+            "title": "랜덤 갤러리",
+            "icon": "fa-solid fa-images",
+            "order": 91,
+        }
 
     # ------------------------------------------------------------------
     # 필수 계약 (이 플러그인은 검색/적용 대상이 아니므로 빈 구현만 제공)
@@ -194,6 +233,18 @@ class RandomGalleryMetadataProvider(BaseMetadataProvider):
     # ------------------------------------------------------------------
     def _get_config(self, db_type):
         return self.get_plugin_config(db_type, default={}) or {}
+
+    def _get_display_mode(self):
+        # dashboard_widget/category_tab은 db_type 없이 조회되는 속성이라,
+        # 노출 위치 설정은 'general' 설정을 기준으로 판단합니다.
+        try:
+            cfg = self.get_plugin_config("general", default={}) or {}
+        except Exception:
+            cfg = {}
+        mode = (cfg.get("DISPLAY_MODE") or "both").strip()
+        if mode not in ("both", "desk_tab", "category_tab", "none"):
+            mode = "both"
+        return mode
 
     def _get_apps_script_url(self, cfg):
         return (cfg.get("APPS_SCRIPT_URL") or DEFAULT_APPS_SCRIPT_URL).strip()
