@@ -8,6 +8,12 @@ Google Apps Script 웹앱을 프록시로 사용해 Pixabay, Pixiv, 또는 직�
 - **플러그인 ID**: `random_gallery`
 - **표시명**: 랜덤 갤러리
 
+## 스크린샷
+
+| 메인 화면 (카테고리 풀페이지 탭) | 설정 화면 |
+| :---: | :---: |
+| ![메인 화면](./main_img.png) | ![설정 화면](./setting_img.png) |
+
 ## 주요 기능
 
 - Apps Script 웹앱(`?url=사이트주소`)을 통해 이미지 목록(JSON)을 가져옵니다.
@@ -18,25 +24,23 @@ Google Apps Script 웹앱을 프록시로 사용해 Pixabay, Pixiv, 또는 직�
   - **플러그인 데스크** 내부의 단독 전체화면 탭 (표준 대시보드 위젯 카드 형식)
   - **카테고리 내비게이션**의 "랜덤 갤러리" 메뉴 (자체 제작한 풀페이지 UI:
     큰 이미지 그리드 + 카테고리 필터 버튼 + 새로고침 버튼)
+- 환경설정 화면은 평소엔 접혀 있다가 클릭해야 펼쳐지는 커스텀 폼
+  (`settings.html`/`settings.css`)을 사용합니다.
 - 문제 발생 시 원인을 바로 확인할 수 있도록 요청 URL/HTTP 상태코드/원본
   응답/오류 메시지를 서버 로그와(옵션) 응답 데이터에 함께 남깁니다.
 
 ## 설치 방법
 
-1. 이 폴더 전체(`random_gallery/`)를 BookOasis의
-   `plugins/metadata/` 아래에 복사합니다.
-   ```
-   plugins/metadata/random_gallery/
-     ├── __init__.py
-     ├── random_gallery.py
-     ├── VERSION
-     ├── index.html
-     ├── script.js
-     └── style.css
-   ```
-2. BookOasis(컨테이너/프로세스)를 재시작합니다.
-3. 환경설정 > 플러그인 설정에서 "랜덤 갤러리"를 활성화하고 아래 설정값을
-   입력합니다.
+```bash
+cd /BookOasis_stable/plugins/metadata
+rm -rf random_gallery/
+git clone https://github.com/yume-script/random_gallery
+docker compose restart bookoasis
+```
+
+재시작 후, 환경설정 > 플러그인 설정에서 "랜덤 갤러리"를 활성화하고
+아래 설정값을 입력합니다. 설정 항목들은 기본적으로 접혀 있으니
+"설정 펼치기"를 클릭해서 펼친 뒤 입력하세요.
 
 ## 설정 항목
 
@@ -115,6 +119,9 @@ Apps Script가 반환해야 하는 정상 응답 형식:
 4. **카테고리 버튼이 안 보임**
    - `CATEGORIES_JSON`에 카테고리를 2개 이상 등록해야 필터 버튼이
      나타납니다. 1개 이하(또는 미설정)면 "전체" 하나로만 동작합니다.
+5. **설정을 저장했는데 값이 안 남음**
+   - `settings.html`의 `input`/`select` `name` 속성이 설정 키와 정확히
+     일치해야 합니다(오탈자 있으면 저장은 되지만 플러그인이 읽지 못합니다).
 
 ## 파일 구성 및 계약 요약
 
@@ -132,5 +139,12 @@ Apps Script가 반환해야 하는 정상 응답 형식:
   - `category_tab` 클릭 시 로드되는 완전 커스텀 풀페이지 UI입니다.
     코어의 정형화된 도서 카드 렌더러를 거치지 않으므로 이미지 그리드
     크기, 카테고리 필터 버튼 등을 자유롭게 구성했습니다.
+- `settings.html` / `settings.css`
+  - 환경설정 탭 전용 커스텀 폼입니다. 존재하면 `config_schema` 기반
+    코어 자동 생성 폼 대신 이 폼이 사용됩니다. 평소엔 `<details>`로
+    접혀 있다가 "설정 펼치기"를 클릭해야 8개 설정 항목이 나타납니다.
+    라벨-입력을 좌우로 배치해서 가독성을 높였습니다. 별도 `settings.js`는
+    없습니다 — `input`/`select`의 `name` 속성이 설정 키와 일치하면
+    코어가 저장을 자동 처리합니다.
 - `VERSION`
   - 플러그인 버전 정보 (`{"plugin version": "1.2.0"}`).
