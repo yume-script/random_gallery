@@ -175,14 +175,14 @@ class RandomGalleryMetadataProvider(BaseMetadataProvider):
     # 반환하도록 했었는데, 코어가 플러그인 목록을 만들 때 인스턴스가 아닌
     # 클래스 자체에서 이 값을 읽는 것으로 보여 플러그인이 통째로 목록에서
     # 사라지는 문제가 있었습니다. 그래서 다시 고정된 dict로 되돌렸습니다.
-    dashboard_widget = {
-        "title": "랜덤 갤러리",
-        "subtitle": "카테고리별 랜덤 이미지",
-        "provider": "Apps Script Gallery Proxy",
-        "icon": "fa-solid fa-images",
-        "limit": 30,
-        "all_desk_tab": True,
-    }
+    #dashboard_widget = {
+    #    "title": "랜덤 갤러리",
+    #    "subtitle": "카테고리별 랜덤 이미지",
+    #    "provider": "Apps Script Gallery Proxy",
+    #    "icon": "fa-solid fa-images",
+    #    "limit": 30,
+    #    "all_desk_tab": True,
+    #}
 
     # 코어 좌측/상단 "카테고리" 내비게이션에 별도 메뉴로 노출 + index.html/
     # script.js/style.css로 완전 커스텀 풀페이지 렌더링 (가이드 문서에는 없지만
