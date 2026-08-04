@@ -1,0 +1,87 @@
+<div class="rg-settings-panel">
+  <div class="rg-settings-title">랜덤 갤러리 설정</div>
+  <div class="rg-settings-desc">Apps Script 웹앱을 통해 갤러리 사이트 이미지를 카테고리별로 가져오기 위한 설정입니다.</div>
+
+  <details class="rg-settings-section">
+    <summary>설정 펼치기 (클릭)</summary>
+    <div class="rg-settings-body">
+
+      <!-- Apps Script 배포 URL -->
+      <div class="rg-settings-field">
+        <label for="rg-apps-script-url">Apps Script 배포 URL</label>
+        <div class="rg-input-container">
+          <input id="rg-apps-script-url" type="text" name="APPS_SCRIPT_URL" placeholder="https://script.google.com/macros/s/.../exec" />
+          <p class="hint">이미지 목록을 프록시해오는 Google Apps Script 웹앱의 배포 URL입니다.</p>
+        </div>
+      </div>
+
+      <!-- 갤러리 사이트 선택 -->
+      <div class="rg-settings-field">
+        <label for="rg-gallery-source">갤러리 사이트 선택</label>
+        <div class="rg-input-container">
+          <select id="rg-gallery-source" name="GALLERY_SOURCE">
+            <option value="pixabay">Pixabay (pixabay.com)</option>
+            <option value="pixiv">Pixiv (pixiv.net)</option>
+            <option value="custom">개인서버 (직접 입력)</option>
+          </select>
+          <p class="hint">이미지를 가져올 갤러리 사이트입니다. "개인서버"를 선택하면 아래 주소를 사용합니다.</p>
+        </div>
+      </div>
+
+      <!-- 개인서버 주소 -->
+      <div class="rg-settings-field">
+        <label for="rg-custom-site-url">개인서버 주소</label>
+        <div class="rg-input-container">
+          <input id="rg-custom-site-url" type="text" name="CUSTOM_SITE_URL" placeholder="예: my-gallery.example.com (https:// 없이)" />
+          <p class="hint">갤러리 사이트 선택이 "개인서버"일 때만 사용됩니다. https:// 없이 도메인만 입력하세요.</p>
+        </div>
+      </div>
+
+      <!-- 카테고리 목록 -->
+      <div class="rg-settings-field">
+        <label for="rg-categories-json">카테고리 목록 (JSON)</label>
+        <div class="rg-input-container">
+          <input id="rg-categories-json" type="text" name="CATEGORIES_JSON" placeholder='[{"label":"자연","keyword":"nature"}]' />
+          <p class="hint">비워두면 검색어 없이 전체 이미지를 "전체" 카테고리 하나로 보여줍니다. 형식: [{"label":표시명, "keyword":검색어}, ...]</p>
+        </div>
+      </div>
+
+      <!-- 카테고리당 이미지 수 -->
+      <div class="rg-settings-field">
+        <label for="rg-images-per-category">카테고리당 이미지 수</label>
+        <div class="rg-input-container">
+          <input id="rg-images-per-category" type="number" name="IMAGES_PER_CATEGORY" min="1" max="200" placeholder="20" />
+          <p class="hint">카테고리마다 무작위로 골라 보여줄 이미지 개수입니다.</p>
+        </div>
+      </div>
+
+      <!-- 요청 타임아웃 -->
+      <div class="rg-settings-field">
+        <label for="rg-request-timeout">요청 타임아웃(초)</label>
+        <div class="rg-input-container">
+          <input id="rg-request-timeout" type="number" name="REQUEST_TIMEOUT_SEC" min="3" max="60" placeholder="10" />
+          <p class="hint">Apps Script 요청이 이 시간(초) 안에 응답하지 않으면 실패로 처리합니다.</p>
+        </div>
+      </div>
+
+      <!-- 갤러리 활성화 -->
+      <div class="rg-settings-field rg-settings-field-checkbox">
+        <label for="rg-gallery-enabled" class="rg-checkbox-label">
+          <input id="rg-gallery-enabled" type="checkbox" name="GALLERY_ENABLED" />
+          갤러리 활성화
+        </label>
+        <p class="hint">끄면 플러그인 데스크 탭과 카테고리 메뉴 둘 다 "비활성화됨"으로 표시됩니다.</p>
+      </div>
+
+      <!-- 디버그 모드 -->
+      <div class="rg-settings-field rg-settings-field-checkbox">
+        <label for="rg-debug-mode" class="rg-checkbox-label">
+          <input id="rg-debug-mode" type="checkbox" name="DEBUG_MODE" />
+          디버그 정보 표시
+        </label>
+        <p class="hint">요청 URL/상태코드/원본 응답 일부를 결과에 포함시켜 문제 파악을 돕습니다.</p>
+      </div>
+
+    </div>
+  </details>
+</div>
